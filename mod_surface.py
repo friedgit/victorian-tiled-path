@@ -2,7 +2,6 @@ from panda3d.core import *
 from itertools import product
 
 
-# from mod_border_occluder import Border_Occluder
 from mod_tiles import T_Evt
 import tile_poly as tile
 
