@@ -98,6 +98,9 @@ class MyApp(ShowBase):
                              appendTask=True, uponDeath=self.lay_inner_tiles)
         self.re_enable_mouse_camera()
         self.detected_occluder_nps = self.bord_occl.detect_intrusion()
+        for tile in self.detected_occluder_nps:
+            tile.reparentTo(self.border_tiles_np)
+            # tile.reparentTo(render)
         self.lift_border()
         self.activate_shifting(None)
 
@@ -337,9 +340,9 @@ class MyApp(ShowBase):
                     else:
                         pass
                         # There's no duplicator for border tiles but there are intrusions
-                        # self.detected_occluder_nps = self.bord_occl.detect_intrusion()
-                        # for tile in self.detected_occluder_nps:
-                        #     tile.reparentTo(self.border_tiles_np)
+                        self.detected_occluder_nps = self.bord_occl.detect_intrusion()
+                        for tile in self.detected_occluder_nps:
+                            tile.reparentTo(self.border_tiles_np)
 
 
                     self.flung_tile = None
