@@ -11,18 +11,21 @@ DBP = True
 class Border_Occluder:
     def __init__(self, border_np):
         self.border_np = border_np
-        self.occluder_detector = []
+        self.border_tile_trace = []
         self.unoccluded_ixs = []
         self.margin_wd = 4.0
         self.z_off = 0.05
 
+    def get_tile_trace(self):
+        return self.border_tile_trace
+
     def register_occlusion(self, to_dir, on_tile):
         corners = on_tile.corner_nodes()
         xys = [np.getPos(self.border_np) for np in corners]
-        self.occluder_detector.append(dict(to_dir=to_dir, xys=xys))
+        self.border_tile_trace.append(dict(to_dir=to_dir, xys=xys))
         if DBP:
-            print("occluder_detector")
-            for rec in self.occluder_detector:
+            print("border_tile_trace")
+            for rec in self.border_tile_trace:
                 print(rec['to_dir'])
                 for p in rec['xys']:
                     print(p)
@@ -37,19 +40,19 @@ class Border_Occluder:
                     T_Evt.WEST: {'from':'NE', 'to':'NW'},  # north east tail wing, north west head
                     T_Evt.SOUTH: {'from':'NW', 'to':'SW'}}  # north west tail wing, south west head
 
-        last_ix = len(self.occluder_detector) - 1
+        last_ix = len(self.border_tile_trace) - 1
         wrap_ix = 0 if i0 == last_ix else i0 + 1
 
         if DBP:
             print('---margin occluder using indices incl in range [', i0, ',', wrap_ix, ')')
             for i in [i0, wrap_ix]:
-                rec = self.occluder_detector[i]
+                rec = self.border_tile_trace[i]
                 print(rec['to_dir'])
                 for p in rec['xys']:
                     print(p)
 
-        from_rec = self.occluder_detector[i0]
-        to_rec = self.occluder_detector[wrap_ix]
+        from_rec = self.border_tile_trace[i0]
+        to_rec = self.border_tile_trace[wrap_ix]
         to_dir = to_rec['to_dir']
 
         if to_dir == T_Evt.REMOVE:
@@ -141,7 +144,7 @@ class Border_Occluder:
         intrusion_pts = []
         ordinal = ordinals[matched_dir]
         for int_ix in range(4):
-            occl_rec = self.occluder_detector[i0 + int_ix]
+            occl_rec = self.border_tile_trace[i0 + int_ix]
             ord_key = 'exit' if int_ix // 2 == 1 else 'entry'
             pt = self.point_facing(occl_rec['xys'], ordinal[ord_key])
             intrusion_pts.append(pt)
@@ -197,8 +200,8 @@ class Border_Occluder:
         # a sequence (a) results in the removal of that sequence, and (b) must never
         # simultaneously begin a new sequence.
         ix_for_seq = {0: None, 1: None}
-        self.unoccluded_ixs = list(range(len(self.occluder_detector)))
-        for i, rec in enumerate(self.occluder_detector):
+        self.unoccluded_ixs = list(range(len(self.border_tile_trace)))
+        for i, rec in enumerate(self.border_tile_trace):
             to_dir = rec['to_dir']
             if DBP: print(i, to_dir)
             # Look for in progress sequences first
