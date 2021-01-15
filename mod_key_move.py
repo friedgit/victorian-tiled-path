@@ -1,9 +1,9 @@
 import sys
 from direct.showbase.ShowBase import ShowBase
 from direct.task import Task
+from mod_duplicator import cumulative_dups
 from panda3d.core import *
-import math
-from direct.stdpy.pickle import Pickler, Unpickler, dump, dumps, load, loads
+from direct.stdpy.pickle import Pickler, load
 
 from mod_tiles import T_Evt, Tiles, TileDispenser, TileDispenser2
 from mod_surface import Surface
@@ -116,7 +116,7 @@ class MyApp(ShowBase):
         self.lift_border()
         self.init_new_sched()
         self.taskMgr.add(self.spinPrismTask, "spinPrismTask", extraArgs=[
-            TileDispenser2(self.top_limit), self.inner_tile_nps, self.cumulative_dups],
+            TileDispenser2(self.top_limit), self.inner_tile_nps, cumulative_dups],
                          appendTask=True, uponDeath=self.activate_shifting)
 
     def activate_shifting(self, task):
@@ -351,119 +351,6 @@ class MyApp(ShowBase):
                     return Task.done
 
         return Task.cont
-
-    def cumulative_dups(self, settled_tile_nps):
-        repeated_tile_nps = self.repeat_tiles(1, T_Evt.EAST, settled_tile_nps)
-        settled_tile_nps.extend(repeated_tile_nps)
-        repeated_tile_nps = self.repeat_tiles(8, T_Evt.SOUTH, settled_tile_nps)
-        settled_tile_nps.extend(repeated_tile_nps)
-
-    def repeat_tiles(self, num_times, dir, settled_tile_nps):
-        shift = self.calc_repeat_shift(dir, settled_tile_nps)
-        print('shift', shift)
-        repeated_tiles = []
-        for tile in settled_tile_nps:
-            for i in range(num_times):
-                copy_np = tile.copyTo(render)
-                tile_pos = tile.getPos()
-                copy_np.setPos(tile_pos + shift * (i+1))
-                repeated_tiles.append(copy_np)
-        return repeated_tiles
-
-    def coord_fn(self, point, shift_dir, aligned):
-        if shift_dir in [T_Evt.SOUTH, T_Evt.NORTH]:
-            if aligned:
-                return point.y
-            else:
-                return point.x
-        elif shift_dir in [T_Evt.EAST, T_Evt.WEST]:
-            if aligned:
-                return point.x
-            else:
-                return point.y
-        assert('Invalid shift direction')
-
-    def calc_repeat_shift(self, shift_dir, settled_tile_nps):
-        rvs_sort = False if shift_dir in [T_Evt.SOUTH, T_Evt.WEST] else True
-
-        shift_aligned = sorted(settled_tile_nps,
-                               key=lambda tile: self.coord_fn(tile.getPos(), shift_dir, aligned=False),
-                               reverse=rvs_sort)
-
-        grid_rank_list = []
-        matched_rank_ix = None
-        final_rank_ix = None
-        last_tile_sort = None
-        close_sort_ix = None
-        # There are two types of search going on in this loop. The first is just
-        # a close grouped sequence where the tiles start off all aligned in the
-        # shift direction. If that is observed it takes priority and the loop
-        # breaks as soon as the alignment ceases. The second is where they're
-        # never aligned in the shift direction but typically zig-zag. Then the
-        # loop breaks when a tile is found whose co-ordinate in the shift
-        # direction, its grid_rank, matches an earlier tile.
-        for i, tile in enumerate(shift_aligned):
-            if DBP: print(i, tile.getPos())
-
-            # Search for close grouped sequence
-            tile_sort = self.coord_fn(tile.getPos(), shift_dir, aligned=False)
-            if last_tile_sort is not None:
-                if math.isclose(tile_sort, last_tile_sort, abs_tol=1e-02):
-                    # Looking for a close grouped sequence at the start
-                    close_sort_ix = i
-                else:
-                    if close_sort_ix is not None:
-                        # A close grouped sequence began but has now terminated.
-                        # If it exists then this takes priority and we stop looking
-                        # for a matched rank.
-                        break
-            last_tile_sort = tile_sort
-
-            # Search for matching grid rank
-            tile_rank = self.coord_fn(tile.getPos(), shift_dir, aligned=True)
-            for rank_ix, rank in enumerate(grid_rank_list):
-                if DBP: print(rank_ix, rank, tile_rank, matched_rank_ix, grid_rank_list)
-                if math.isclose(tile_rank, rank, abs_tol=1e-02):
-                    matched_rank_ix = rank_ix
-                    break
-            grid_rank_list.append(tile_rank)
-            if matched_rank_ix is not None:
-                final_rank_ix = i
-                break
-
-        if close_sort_ix is not None:
-            # Just use the in-line points in the initial close grouped sequence
-            # which should pre-empt any matching grid rank
-            final_rank_ix = close_sort_ix + 1
-            matched_rank_ix = 0
-
-        # We expect to terminate on one or the other types of search
-        reduced_aligned = shift_aligned[:final_rank_ix]
-
-        # Order the points so we can create a chain of consecutive vectors whose sum,
-        # head to toe, amounts to the last point minus the first point
-        rear_most = sorted(reduced_aligned,
-                           key=lambda tile: self.coord_fn(tile.getPos(), shift_dir, aligned=True),
-                           reverse=(not rvs_sort))
-        if DBP:
-            print('first', rear_most[0].getPos())
-            print('last', rear_most[-1].getPos())
-            print('matched', shift_aligned[final_rank_ix].getPos())
-            print('common', rear_most[matched_rank_ix + 1].getPos())
-
-        # Generate a preliminary shift vector in the desired direction
-        forward = rear_most[-1].getPos() - rear_most[0].getPos()
-        # Test if it is aligned to the shift direction
-        if math.isclose(self.coord_fn(forward, shift_dir, aligned=False), 0.0, abs_tol=1e-02):
-            # rectilinear pattern, or in-line diagonals: ignore matched point
-            matched_origin = rear_most[matched_rank_ix].getPos()
-        else:
-            # non-rectilinear, probably diagonal: use matched point
-            matched_origin = shift_aligned[final_rank_ix].getPos()
-        common = rear_most[matched_rank_ix + 1].getPos()
-        delta = common - matched_origin
-        shift = forward + delta
-        return shift
 
 
 app = MyApp()
