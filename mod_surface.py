@@ -120,6 +120,14 @@ class Surface:
             collision_node.clearSolids()
 
     def intrusion(self, x0, x1, y0, y1):
+        """
+        Not currently used, and may never be useful.
+        Generates a rectanglar intrusion protected with collision cyclinders.
+        But the problem is that you cannot lay tiles easily against convex
+        outside corners, only concave inside corners really work.
+        So this approach was abandoned, and this method is never called.
+        """
+
         cm = CardMaker('intrusion')
         cm.setFrame(x0, x1, y0, y1)  # card dimensions are ((x1-x0), (y1-y0))
         cm_node = cm.generate()

@@ -88,20 +88,13 @@ class MyApp(ShowBase):
             self.stash = True
 
         if not self.stash:
-            # Load the pickled data into a new variable
+            # Load the pickled data into the relevant lists / dicts
             self.load_layout(input)
-            # self.lift_border()
-            # self.activate_shifting(None)
-            # self.taskMgr.add(self.detect_intrusion, "detect intrusion")
         else:
             self.taskMgr.add(self.spinPrismTask, "spinPrismTask", extraArgs=[
                 TileDispenser(self.top_limit), self.border_tile_nps, None],
                              appendTask=True, uponDeath=self.lay_inner_tiles)
-        # self.re_enable_mouse_camera()
-        # self.detected_occluder_nps = self.bord_occl.detect_intrusion()
-        # for tile in self.detected_occluder_nps:
-        #     tile.reparentTo(self.border_tiles_np)
-            # tile.reparentTo(render)
+        self.re_enable_mouse_camera()
         self.lift_border()
         self.activate_shifting(None)
 
@@ -118,9 +111,6 @@ class MyApp(ShowBase):
         self.count_down = self.count_threshold
         self.hit_bottom_row = False
 
-    def detect_intrusion(self, task):
-        # self.load_layout(input)
-        self.detected_occluder_nps = self.bord_occl.detect_intrusion()
 
     def lay_inner_tiles(self, task):
         self.lift_border()
@@ -128,7 +118,6 @@ class MyApp(ShowBase):
         self.taskMgr.add(self.spinPrismTask, "spinPrismTask", extraArgs=[
             TileDispenser2(self.top_limit), self.inner_tile_nps, self.cumulative_dups],
                          appendTask=True, uponDeath=self.activate_shifting)
-                         # appendTask=True)
 
     def activate_shifting(self, task):
         if self.stash:
@@ -160,8 +149,6 @@ class MyApp(ShowBase):
 
         self.bord_occl.border_tile_trace = tiled_floor['border_tile_trace']
         self.detected_occluder_nps = self.bord_occl.detect_intrusion()
-        # for tile in self.detected_occluder_nps:
-        #     tile.reparentTo(self.border_tiles_np)
 
         pass
 
@@ -211,7 +198,6 @@ class MyApp(ShowBase):
 
     def move(self, task):
         dt = globalClock.getDt()
-        # print(dt, self.keyMap)
         delta = 2
         if self.keyMap["west"]:
             self.inner_tiles_np.setX(self.inner_tiles_np.getX() - delta * dt)
@@ -251,10 +237,7 @@ class MyApp(ShowBase):
         self.hit_count += 1
 
     def zoomIn(self):
-        # self.camera.setPos(7, 18, 20)
         self.camera.setPos(9, 16, 40)
-        # self.camera.setPos(7, 10, 30)
-        # self.camera.setPos(7, 0, 30)
         self.camera.setP(-90)
 
     def zoomOut(self):
