@@ -78,8 +78,8 @@ class MyApp(ShowBase):
 
         # Try to reopen the file
         try:
-            # input = open('zoo.pkl', 'rb')
-            input = open('zoo-not.pkl', 'rb')
+            input = open('zoo.pkl', 'rb')
+            # input = open('zoo-not.pkl', 'rb')
 
             # Loading from pickle, so do not stash
             self.stash = False
@@ -92,14 +92,15 @@ class MyApp(ShowBase):
             self.load_layout(input)
             # self.lift_border()
             # self.activate_shifting(None)
+            # self.taskMgr.add(self.detect_intrusion, "detect intrusion")
         else:
             self.taskMgr.add(self.spinPrismTask, "spinPrismTask", extraArgs=[
                 TileDispenser(self.top_limit), self.border_tile_nps, None],
                              appendTask=True, uponDeath=self.lay_inner_tiles)
-        self.re_enable_mouse_camera()
-        self.detected_occluder_nps = self.bord_occl.detect_intrusion()
-        for tile in self.detected_occluder_nps:
-            tile.reparentTo(self.border_tiles_np)
+        # self.re_enable_mouse_camera()
+        # self.detected_occluder_nps = self.bord_occl.detect_intrusion()
+        # for tile in self.detected_occluder_nps:
+        #     tile.reparentTo(self.border_tiles_np)
             # tile.reparentTo(render)
         self.lift_border()
         self.activate_shifting(None)
@@ -116,6 +117,10 @@ class MyApp(ShowBase):
         self.sunk = False
         self.count_down = self.count_threshold
         self.hit_bottom_row = False
+
+    def detect_intrusion(self, task):
+        # self.load_layout(input)
+        self.detected_occluder_nps = self.bord_occl.detect_intrusion()
 
     def lay_inner_tiles(self, task):
         self.lift_border()
@@ -143,8 +148,22 @@ class MyApp(ShowBase):
 
         self.floor = tiled_floor['floor']
         self.inner_tile_nps = tiled_floor['inner_tiles']
+
+        # This step is required to make the pickled tiles appear
+        self.inner_tiles_np = self.render.attachNewNode("inner")
+        for tile in self.inner_tile_nps:
+            tile.reparentTo(self.inner_tiles_np)
+
         self.border_tile_nps = tiled_floor['border_tiles']
-        self.border_tile_trace = tiled_floor['border_tile_trace']
+        for tile in self.border_tile_nps:
+            tile.reparentTo(self.border_tiles_np)
+
+        self.bord_occl.border_tile_trace = tiled_floor['border_tile_trace']
+        self.detected_occluder_nps = self.bord_occl.detect_intrusion()
+        # for tile in self.detected_occluder_nps:
+        #     tile.reparentTo(self.border_tiles_np)
+
+        pass
 
     def stash_layout(self):
         output = open('zoo.pkl', 'wb')
@@ -304,7 +323,9 @@ class MyApp(ShowBase):
                 settled_tile_nps.append(self.flung_tile.np)
 
                 if self.event != T_Evt.NONE:
-                    self.bord_occl.register_occlusion(self.event, self.flung_tile)
+                    if not duplicator:
+                        # no duplicator implies intrusions
+                        self.bord_occl.register_occlusion(self.event, self.flung_tile)
                     if self.event == T_Evt.REMOVE:
                         self.floor.remove_last_attached()
                     elif self.event == T_Evt.START:
@@ -341,9 +362,7 @@ class MyApp(ShowBase):
                         pass
                         # There's no duplicator for border tiles but there are intrusions
                         self.detected_occluder_nps = self.bord_occl.detect_intrusion()
-                        for tile in self.detected_occluder_nps:
-                            tile.reparentTo(self.border_tiles_np)
-
+                        pass
 
                     self.flung_tile = None
                     return Task.done
