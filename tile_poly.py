@@ -3,13 +3,21 @@ import math
 
 
 class Tile():
+    """
+    Create a thin (zscale reduced) tile object based on a polygonal prism,
+    with the correct texture or colour, with collider nodes at the tips, and
+    an optional large one (if the tile is square) at the c of g. Shape can be
+    scaled (scale), and rotated (phase). The symmetric rotation specifier (sym_rot)
+    was included to identify when a spinning tile could stop spinning - eg 90 degrees
+    for a square tile vs 180 degrees for a rectagle and 360 degrees for a triangle,
+    but is not important now that tiles are moved with a fixed orientation.
+    """
 
     def __init__(self, pos, shape, face_color, tip_rad, p_tag="fred", zscale=0.05, name="Tile",
                  cg=[0,0], cg_rad=1, sym_rot=90, phase=0, scale=1, hopper=False):
         self.sym_rot = sym_rot
         self.phase = phase
         self.name = p_tag
-        self.copies = []
 
         if isinstance(face_color, tuple):
             # if it is a tuple, then it is an RGBA
@@ -26,8 +34,6 @@ class Tile():
             self.np.setTexture(tex1)
         self.np.setPos(pos)
         self.np.setH(phase)
-        # First i.e. the default copy is the original
-        self.copies.append(self.np)
 
         colliderNode = CollisionNode("collider" + name)
         # Add central collider node
@@ -50,7 +56,9 @@ class Tile():
 
 
 class TilePoly():
-    """ Generate a 3D solid in xyz plane from a 2D polygon in xy plane """
+    """
+    Generate a 3D solid in xyz plane from a 2D polygon in xy plane
+    """
 
     def __init__(self, shape, face_color):
         # 2D Polygon and its 2D normals
@@ -164,7 +172,9 @@ class TilePoly():
 
 
 class Vector2D():
-    """ 2D working in x-y plane with z = 0 """
+    """
+    2D working in x-y plane with z = 0
+    """
 
     def __init__(self, p1, p2):
         self.p1 = p1

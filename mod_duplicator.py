@@ -1,3 +1,8 @@
+"""
+Functions used to duplicate a group of tiles with inter-group spacing the same
+as the inter-tile spcing within the group.
+"""
+
 import math
 
 # from mod_key_move import DBP
@@ -9,6 +14,11 @@ DBP = True
 
 
 def coord_fn(point, shift_dir, aligned):
+    """
+    Sort function which orders 2D property (tile position) in a 1D linear order
+    according to the desired shift direction, and whether or not the tiles are
+    aligned in the shift direction.
+    """
     if shift_dir in [T_Evt.SOUTH, T_Evt.NORTH]:
         if aligned:
             return point.y
@@ -23,6 +33,16 @@ def coord_fn(point, shift_dir, aligned):
 
 
 def calc_repeat_shift(shift_dir, settled_tile_nps):
+    """
+    Calculates the shift to apply to a group of tiles in the desired direction,
+    North, South, East, or West
+    Able to work both with groups which are aligned in the shift direction, like this
+    [ ][ ][ ]
+    [ ][ ][ ]
+    or not aligned, but in a diamond pattern, like this
+    X  X  X  X
+     X  X  X  X
+    """
     rvs_sort = False if shift_dir in [T_Evt.SOUTH, T_Evt.WEST] else True
 
     shift_aligned = sorted(settled_tile_nps,
@@ -106,6 +126,9 @@ def calc_repeat_shift(shift_dir, settled_tile_nps):
 
 
 def repeat_tiles(num_times, dir, settled_tile_nps):
+    """
+    Duplicates a group of tiles num_times over in direction dir.
+    """
     shift = calc_repeat_shift(dir, settled_tile_nps)
     print('shift', shift)
     repeated_tiles = []
@@ -119,6 +142,12 @@ def repeat_tiles(num_times, dir, settled_tile_nps):
 
 
 def cumulative_dups(settled_tile_nps):
+    """
+    Duplicates the group settled_tile_nps 1 times to the East to form a new
+    group which itself is then duplicated 8 times to the South. Hence the
+    original supplied group is duplicated a total of (1 + 1) x (1 + 8) = 18
+    times.
+    """
     repeated_tile_nps = repeat_tiles(1, T_Evt.EAST, settled_tile_nps)
     settled_tile_nps.extend(repeated_tile_nps)
     repeated_tile_nps = repeat_tiles(8, T_Evt.SOUTH, settled_tile_nps)

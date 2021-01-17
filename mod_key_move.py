@@ -111,7 +111,6 @@ class MyApp(ShowBase):
         self.count_down = self.count_threshold
         self.hit_bottom_row = False
 
-
     def lay_inner_tiles(self, task):
         self.lift_border()
         self.init_new_sched()
@@ -125,7 +124,7 @@ class MyApp(ShowBase):
 
         self.inner_tiles_np = self.render.attachNewNode("inner")
 
-        # This step is required to make the pickled tiles appear
+        # This step is required to make the tiles shiftable
         for tile in self.inner_tile_nps:
             tile.reparentTo(self.inner_tiles_np)
 

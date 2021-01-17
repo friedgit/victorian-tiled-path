@@ -6,6 +6,11 @@ from enum import Enum
 import tile_poly as tile
 
 class T_Evt(Enum):
+    """
+    Directional instructions for laying border tiles when changing direction,
+    or, for the _PT ones, creating an internal collision tube to protect the
+    tip of a diagonally laid square tile.
+    """
     NONE = 0
     # proceeding anti-clockwise
     EAST = 1
@@ -17,6 +22,7 @@ class T_Evt(Enum):
     START = 6
 
     # TODO these not recognised by intrusion detector
+    # Ordinal points of a diagonally laid square tile
     EA_PT = 7
     NO_PT = 8
     WE_PT = 9
@@ -24,6 +30,11 @@ class T_Evt(Enum):
 
 
 class Tiles:
+    """
+    Collection of methods for generating different kinds of tiles. Some, such as the
+    triangles, aren't used anymore, because they appear by virtue of the border
+    occluding parts of the diagonally laid inner tiles.
+    """
     # Prisms
     square = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
     triangle = [[-1, -1], [1, -1], [1, 1]]
@@ -87,6 +98,11 @@ class Tiles:
 
 
 class TileDispenser:
+    """
+    Creates a schedule of tiles to dispense for the border tiles. Also contains all the methods
+    for the inner tiles, but they're not invoked here. Instead the inner tile methods are invoked
+    in a subclass, TileDispenser2.
+    """
     up_lf = [Vec3(0.0, 0.080, -0.080) * 3, Vec3(-0.060, 0.080, -0.080) * 1.5]
     up_hl = [Vec3(0.0, 0.080, -0.080) * 3, Vec3(-0.060, 0.020, -0.080) * 1.5]
     dn_lf = [Vec3(0.0, -0.080, -0.080) * 3, Vec3(-0.060, -0.080, -0.080) * 1.5]
@@ -252,6 +268,9 @@ class TileDispenser:
 
 
 class TileDispenser2(TileDispenser):
+    """
+    Creates a schedule of tiles to dispense for the inner tiles.
+    """
     def __init__(self, top_y):
         self.schedule = deque()
 

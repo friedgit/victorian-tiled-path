@@ -12,6 +12,16 @@ DBP = True
 
 
 class Surface:
+    """
+    Surface on which tiles are laid.
+    Contains the following node paths:
+    moveable_np: all collision tubes are attached to this
+    - those for initial path borders: path_end, path_bord
+    - those attached to laid tiles: path_tile
+    - internal borders: path_internal
+    floor_np: textured concrete base. Can be suppressed without
+        any effect on laying the tiles, so essentially optional.
+    """
     def __init__(self, x1, y1,
                  grout_wd, tip_rad):
         # Path to front door
