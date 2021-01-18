@@ -91,13 +91,14 @@ class MyApp(ShowBase):
         if not self.stash:
             # Load the pickled data into the relevant lists / dicts
             self.load_layout(input)
+            self.activate_shifting(None)
         else:
             self.taskMgr.add(self.spinPrismTask, "spinPrismTask", extraArgs=[
                 TileDispenser(self.top_limit), self.border_tile_nps, None],
                              appendTask=True, uponDeath=self.lay_inner_tiles)
         self.re_enable_mouse_camera()
         # self.lift_border()
-        self.activate_shifting(None)
+        # self.activate_shifting(None)
 
     def re_enable_mouse_camera(self):
         mat = Mat4(camera.getMat())
