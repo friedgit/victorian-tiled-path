@@ -91,14 +91,13 @@ class MyApp(ShowBase):
         if not self.stash:
             # Load the pickled data into the relevant lists / dicts
             self.load_layout(input)
+            self.lift_border()
             self.activate_shifting(None)
         else:
             self.taskMgr.add(self.spinPrismTask, "spinPrismTask", extraArgs=[
                 TileDispenser(self.top_limit), self.border_tile_nps, None],
                              appendTask=True, uponDeath=self.lay_inner_tiles)
         self.re_enable_mouse_camera()
-        # self.lift_border()
-        # self.activate_shifting(None)
 
     def re_enable_mouse_camera(self):
         mat = Mat4(camera.getMat())
@@ -128,14 +127,13 @@ class MyApp(ShowBase):
         self.init_new_sched()
         self.taskMgr.add(self.spinPrismTask, "spinPrismTask", extraArgs=[
             TileDispenser2(self.top_limit), self.inner_tile_nps, cumulative_dups],
-                         appendTask=True, uponDeath=self.activate_shifting)
+                         appendTask=True, uponDeath=self.stash_then_shift)
+
+    def stash_then_shift(self, task):
+        self.stash_layout()
+        self.activate_shifting(task)
 
     def activate_shifting(self, task):
-        if self.stash:
-            self.stash_layout()
-        else:
-            self.lift_border()
-
         # This step is required to make the tiles shiftable
         for tile in self.inner_tile_nps:
             tile.reparentTo(self.inner_tiles_np)
