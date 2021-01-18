@@ -122,6 +122,8 @@ class MyApp(ShowBase):
         self.border_tiles_np.setZ(self.border_tiles_np.getZ() + height)
 
     def lay_inner_tiles(self, task):
+        self.lift_border()
+
         self.init_new_sched()
         self.taskMgr.add(self.spinPrismTask, "spinPrismTask", extraArgs=[
             TileDispenser2(self.top_limit), self.inner_tile_nps, cumulative_dups],
@@ -131,7 +133,7 @@ class MyApp(ShowBase):
         if self.stash:
             self.stash_layout()
 
-        self.lift_border()
+        # self.lift_border()
 
         # This step is required to make the tiles shiftable
         for tile in self.inner_tile_nps:
