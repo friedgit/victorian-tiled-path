@@ -55,6 +55,7 @@ class MyApp(ShowBase):
                              self.grout_wd, Tiles.tip_rad)
         self.border_tiles_np = self.render.attachNewNode("border")
         self.bord_occl = Border_Occluder(self.border_tiles_np)
+        self.inner_tiles_np = self.render.attachNewNode("inner")
 
         self.pusher = CollisionHandlerPusher()
         self.cTrav = CollisionTraverser()
@@ -78,8 +79,8 @@ class MyApp(ShowBase):
 
         # Try to reopen the file
         try:
-            input = open('zoo.pkl', 'rb')
-            # input = open('zoo-not.pkl', 'rb')
+            # input = open('zoo.pkl', 'rb')
+            input = open('zoo-not.pkl', 'rb')
 
             # Loading from pickle, so do not stash
             self.stash = False
@@ -122,8 +123,6 @@ class MyApp(ShowBase):
         if self.stash:
             self.stash_layout()
 
-        self.inner_tiles_np = self.render.attachNewNode("inner")
-
         # This step is required to make the tiles shiftable
         for tile in self.inner_tile_nps:
             tile.reparentTo(self.inner_tiles_np)
@@ -135,21 +134,17 @@ class MyApp(ShowBase):
         tiled_floor = load(input)
 
         self.floor = tiled_floor['floor']
-        self.inner_tile_nps = tiled_floor['inner_tiles']
-
-        # This step is required to make the pickled tiles appear
-        self.inner_tiles_np = self.render.attachNewNode("inner")
-        for tile in self.inner_tile_nps:
-            tile.reparentTo(self.inner_tiles_np)
 
         self.border_tile_nps = tiled_floor['border_tiles']
         for tile in self.border_tile_nps:
             tile.reparentTo(self.border_tiles_np)
 
+        self.inner_tile_nps = tiled_floor['inner_tiles']
+        for tile in self.inner_tile_nps:
+            tile.reparentTo(self.inner_tiles_np)
+
         self.bord_occl.border_tile_trace = tiled_floor['border_tile_trace']
         self.detected_occluder_nps = self.bord_occl.detect_intrusion()
-
-        pass
 
     def stash_layout(self):
         output = open('zoo.pkl', 'wb')
