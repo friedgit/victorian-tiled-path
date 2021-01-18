@@ -79,8 +79,8 @@ class MyApp(ShowBase):
 
         # Try to reopen the file
         try:
-            # input = open('zoo.pkl', 'rb')
-            input = open('zoo-not.pkl', 'rb')
+            input = open('zoo.pkl', 'rb')
+            # input = open('zoo-not.pkl', 'rb')
 
             # Loading from pickle, so do not stash
             self.stash = False
@@ -96,7 +96,7 @@ class MyApp(ShowBase):
                 TileDispenser(self.top_limit), self.border_tile_nps, None],
                              appendTask=True, uponDeath=self.lay_inner_tiles)
         self.re_enable_mouse_camera()
-        self.lift_border()
+        # self.lift_border()
         self.activate_shifting(None)
 
     def re_enable_mouse_camera(self):
@@ -130,6 +130,8 @@ class MyApp(ShowBase):
     def activate_shifting(self, task):
         if self.stash:
             self.stash_layout()
+
+        self.lift_border()
 
         # This step is required to make the tiles shiftable
         for tile in self.inner_tile_nps:
