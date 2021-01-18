@@ -112,8 +112,16 @@ class MyApp(ShowBase):
         self.count_down = self.count_threshold
         self.hit_bottom_row = False
 
+    def lift_border(self):
+        # This step is required to make the pickled tiles appear
+        for tile in self.border_tile_nps:
+            tile.reparentTo(self.border_tiles_np)
+
+        # height = 0.01
+        height = 1
+        self.border_tiles_np.setZ(self.border_tiles_np.getZ() + height)
+
     def lay_inner_tiles(self, task):
-        self.lift_border()
         self.init_new_sched()
         self.taskMgr.add(self.spinPrismTask, "spinPrismTask", extraArgs=[
             TileDispenser2(self.top_limit), self.inner_tile_nps, cumulative_dups],
@@ -202,15 +210,6 @@ class MyApp(ShowBase):
         if self.keyMap["south"]:
             self.inner_tiles_np.setY(self.inner_tiles_np.getY() - delta * dt)
         return Task.cont
-
-    def lift_border(self):
-        # This step is required to make the pickled tiles appear
-        for tile in self.border_tile_nps:
-            tile.reparentTo(self.border_tiles_np)
-
-        height = 0.01
-        # height = 1
-        self.border_tiles_np.setZ(self.border_tiles_np.getZ() + height)
 
     # Records the state of the arrow keys
     def setKey(self, key, value):
