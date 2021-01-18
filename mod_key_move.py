@@ -132,8 +132,8 @@ class MyApp(ShowBase):
     def activate_shifting(self, task):
         if self.stash:
             self.stash_layout()
-
-        # self.lift_border()
+        else:
+            self.lift_border()
 
         # This step is required to make the tiles shiftable
         for tile in self.inner_tile_nps:
