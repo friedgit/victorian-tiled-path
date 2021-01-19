@@ -79,8 +79,8 @@ class MyApp(ShowBase):
 
         # Try to reopen the file
         try:
-            input = open('zoo.pkl', 'rb')
-            # input = open('zoo-not.pkl', 'rb')
+            # input = open('zoo.pkl', 'rb')
+            input = open('zoo-not.pkl', 'rb')
 
             # Loading from pickle, so do not stash
             self.stash = False

@@ -14,7 +14,8 @@ class Border_Occluder:
         self.border_tile_trace = []
         self.unoccluded_ixs = []
         self.margin_wd = 4.0
-        self.z_off = 0.05
+        # self.z_off = -0.05
+        self.z_off = 2
 
     def get_tile_trace(self):
         return self.border_tile_trace
@@ -31,14 +32,34 @@ class Border_Occluder:
                     print(p)
 
     def margin_occluder(self, i0, no_tail):
+
+        # This table is purely for deriving the notional 'to' direction from the actual 'from'
+        # direction in the cases where the 'to' direction is REMOVE. eg. if the 'from' direction
+        # is SOUTH and the 'to' direction is REMOVE, REMOVE is replaced by a notional EAST
+        # so that the derived notional direction always follows an anti-clockwise progression.
+        # This holds for margin occluders only. If the 'to' direction points in the opposite
+        # direction then that indicates a requirement for an intrusion occculder instead.
         to_from_from = {T_Evt.EAST: T_Evt.NORTH,
                         T_Evt.NORTH: T_Evt.WEST,
                         T_Evt.WEST: T_Evt.SOUTH,
                         T_Evt.SOUTH: T_Evt.EAST}
-        ordinals = {T_Evt.EAST: {'from':'SW', 'to':'SE'},  # south west tail wing, south east head
-                    T_Evt.NORTH: {'from':'SE', 'to':'NE'},  # south east tail wing, north east head
-                    T_Evt.WEST: {'from':'NE', 'to':'NW'},  # north east tail wing, north west head
-                    T_Evt.SOUTH: {'from':'NW', 'to':'SW'}}  # north west tail wing, south west head
+
+        # Derives the correct ordinals to take from the corner tile based on the 'to' direction,
+        # based on the assumption that a margin occluder skirts the outer edge of the border tiles
+        # and we are traversing in an ant-clockwise direction. The concept of the 'tail wing' is
+        # to extend the margin occluder backwards by the margin width in order to butt up to the
+        # head of the previous margin occluder, while the head stops at the corner of its tile.
+        # ordinals = {T_Evt.EAST: {'from':'SW', 'to':'SE'},  # south west tail wing, south east head
+        #             T_Evt.NORTH: {'from':'SE', 'to':'NE'},  # south east tail wing, north east head
+        #             T_Evt.WEST: {'from':'NE', 'to':'NW'},  # north east tail wing, north west head
+        #             T_Evt.SOUTH: {'from':'NW', 'to':'SW'}}  # north west tail wing, south west head
+
+        # Ordinals where the margin occluder skirts the inner edge of the border tiles, traversing
+        # in an anti-clockwise direction. Alternative solution to create occluder grout line.
+        ordinals = {T_Evt.EAST: {'from':'NW', 'to':'NE'},
+                    T_Evt.NORTH: {'from':'SW', 'to':'NW'},
+                    T_Evt.WEST: {'from':'SE', 'to':'SW'},
+                    T_Evt.SOUTH: {'from':'NE', 'to':'SE'}}
 
         last_ix = len(self.border_tile_trace) - 1
         wrap_ix = 0 if i0 == last_ix else i0 + 1
@@ -116,6 +137,12 @@ class Border_Occluder:
         return [wing_in, wing_out, end_out, end_in]
 
     def point_facing(self, xys, ordinal_dir):
+        """
+        Applies to a rectilinear aligned square or rectangular tile, whose 4 corners
+        can be identified by the 4 ordinal directions NW, SW, SW, SE. Selects
+        and returns the appropriate corner, with a z offset so that the point floats
+        above or below the tiles
+        """
         if ordinal_dir in ['NW', 'SW']:
             ordinal_x = min([p.x for p in xys])
         else:
@@ -128,10 +155,21 @@ class Border_Occluder:
         return Vec3(ordinal_x, ordinal_y, self.z_off)
 
     def intrusion_occluder(self, i0, matched_dir):
-        ordinals = {T_Evt.EAST: {'entry':'SE', 'exit':'SW'},
-                    T_Evt.NORTH: {'entry':'NE', 'exit':'SE'},
-                    T_Evt.WEST: {'entry':'NW', 'exit':'NE'},
-                    T_Evt.SOUTH: {'entry':'SW', 'exit':'NW'}}
+        # Derives the correct ordinals to take from the corner tile based on the 'to' direction,
+        # based on the assumption that an intrusion occluder skirts the inner edge of the intrusion
+        # border tiles and we are traversing in an anti-clockwise direction.
+        # ordinals = {T_Evt.EAST: {'entry':'SE', 'exit':'SW'},
+        #             T_Evt.NORTH: {'entry':'NE', 'exit':'SE'},
+        #             T_Evt.WEST: {'entry':'NW', 'exit':'NE'},
+        #             T_Evt.SOUTH: {'entry':'SW', 'exit':'NW'}}
+
+        # Ordinals where the intrusion occluder skirts the outer edge of the intrusion border tiles,
+        # traversing in an anti-clockwise direction. Alternative solution to create occluder grout line.
+        ordinals = {T_Evt.EAST: {'entry':'NW', 'exit':'NE'},
+                    T_Evt.NORTH: {'entry':'SW', 'exit':'NW'},
+                    T_Evt.WEST: {'entry':'SE', 'exit':'SW'},
+                    T_Evt.SOUTH: {'entry':'NE', 'exit':'SE'}}
+
 
         for j in range(i0, i0+3):
             self.unoccluded_ixs.remove(j)
