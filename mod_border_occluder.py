@@ -56,10 +56,17 @@ class Border_Occluder:
 
         # Ordinals where the margin occluder skirts the inner edge of the border tiles, traversing
         # in an anti-clockwise direction. Alternative solution to create occluder grout line.
-        ordinals = {T_Evt.EAST: {'from':'NW', 'to':'NE'},
-                    T_Evt.NORTH: {'from':'SW', 'to':'NW'},
-                    T_Evt.WEST: {'from':'SE', 'to':'SW'},
-                    T_Evt.SOUTH: {'from':'NE', 'to':'SE'}}
+        # ordinals = {T_Evt.EAST: {'from':'NW', 'to':'NE'},
+        #             T_Evt.NORTH: {'from':'SW', 'to':'NW'},
+        #             T_Evt.WEST: {'from':'SE', 'to':'SW'},
+        #             T_Evt.SOUTH: {'from':'NE', 'to':'SE'}}
+
+        # Ordinals where the margin occluder skirts the inner edge of the border tiles, traversing
+        # in an anti-clockwise direction. and allowing for shorter wing based on 'from'.
+        ordinals = {T_Evt.EAST: {'from':'NE', 'to':'NE'},
+                    T_Evt.NORTH: {'from':'NW', 'to':'NW'},
+                    T_Evt.WEST: {'from':'SW', 'to':'SW'},
+                    T_Evt.SOUTH: {'from':'SE', 'to':'SE'}}
 
         last_ix = len(self.border_tile_trace) - 1
         wrap_ix = 0 if i0 == last_ix else i0 + 1
