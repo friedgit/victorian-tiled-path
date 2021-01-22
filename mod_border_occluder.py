@@ -9,13 +9,14 @@ DBP = True
 
 
 class Border_Occluder:
-    def __init__(self, border_np):
+    def __init__(self, border_np, grout_width):
         self.border_np = border_np
         self.border_tile_trace = []
         self.unoccluded_ixs = []
         self.margin_wd = 4.0
         # self.z_off = -0.05
         self.z_off = 2
+        self.grout_width = grout_width
 
     def get_tile_trace(self):
         return self.border_tile_trace
@@ -112,34 +113,36 @@ class Border_Occluder:
 
     def stake_out_margin(self, to_dir, start_pt, end_pt, no_tail):
         if DBP: print(to_dir, start_pt, end_pt, no_tail)
+        x_grout = Vec3(self.grout_width, 0, 0)
+        y_grout = Vec3(0, self.grout_width, 0)
         if to_dir == T_Evt.EAST:
             x = 0 if no_tail else -self.margin_wd
             y = -self.margin_wd
-            wing_in = start_pt + Vec3(x, 0, 0)
+            wing_in = start_pt + Vec3(x, 0, 0) + y_grout
             wing_out = start_pt + Vec3(x, y, 0)
             end_out = end_pt + Vec3(0, y, 0)
-            end_in = Vec3(end_pt)
+            end_in = Vec3(end_pt) + y_grout
         if to_dir == T_Evt.NORTH:
             x = +self.margin_wd
             y = 0 if no_tail else -self.margin_wd
-            wing_in = start_pt + Vec3(0, y, 0)
+            wing_in = start_pt + Vec3(0, y, 0) - x_grout
             wing_out = start_pt + Vec3(x, y, 0)
             end_out = end_pt + Vec3(x, 0, 0)
-            end_in = Vec3(end_pt)
+            end_in = Vec3(end_pt) - x_grout
         elif to_dir == T_Evt.WEST:
             x = 0 if no_tail else self.margin_wd
             y = +self.margin_wd
-            wing_in = start_pt + Vec3(x, 0, 0)
+            wing_in = start_pt + Vec3(x, 0, 0) - y_grout
             wing_out = start_pt + Vec3(x, y, 0)
             end_out = end_pt + Vec3(0, y, 0)
-            end_in = Vec3(end_pt)
+            end_in = Vec3(end_pt) - y_grout
         if to_dir == T_Evt.SOUTH:
             x = -self.margin_wd
             y = 0 if no_tail else self.margin_wd
-            wing_in = start_pt + Vec3(0, y, 0)
+            wing_in = start_pt + Vec3(0, y, 0) + x_grout
             wing_out = start_pt + Vec3(x, y, 0)
             end_out = end_pt + Vec3(x, 0, 0)
-            end_in = Vec3(end_pt)
+            end_in = Vec3(end_pt) + x_grout
         # return points in anti-clockwise order
         return [wing_in, wing_out, end_out, end_in]
 
@@ -216,6 +219,8 @@ class Border_Occluder:
         # apply the margin to the intrusion opening
         entry_pt = intrusion_pts[0]
         exit_pt = intrusion_pts[3]
+        # x_grout = Vec3(self.grout_width, 0, 0)
+        # y_grout = Vec3(0, self.grout_width, 0)
         if matched_dir == T_Evt.EAST:
             y_min = min(entry_pt.y, exit_pt.y) - self.margin_wd
             entry_pt.y = exit_pt.y = y_min

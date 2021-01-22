@@ -54,7 +54,7 @@ class MyApp(ShowBase):
         self.floor = Surface(1350 / self.mm_per_unit, self.top_limit,
                              self.grout_wd, Tiles.tip_rad)
         self.border_tiles_np = self.render.attachNewNode("border")
-        self.bord_occl = Border_Occluder(self.border_tiles_np)
+        self.bord_occl = Border_Occluder(self.border_tiles_np, self.grout_wd)
         self.inner_tiles_np = self.render.attachNewNode("inner")
 
         self.pusher = CollisionHandlerPusher()
