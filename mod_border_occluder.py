@@ -64,6 +64,7 @@ class Border_Occluder:
 
         # Ordinals where the margin occluder skirts the inner edge of the border tiles, traversing
         # in an anti-clockwise direction. and allowing for shorter wing based on 'from'.
+        # TODO: Only valid when the margin starts with a SQUARE tile
         ordinals = {T_Evt.EAST: {'from':'NE', 'to':'NE'},
                     T_Evt.NORTH: {'from':'NW', 'to':'NW'},
                     T_Evt.WEST: {'from':'SW', 'to':'SW'},
@@ -219,23 +220,41 @@ class Border_Occluder:
         # apply the margin to the intrusion opening
         entry_pt = intrusion_pts[0]
         exit_pt = intrusion_pts[3]
-        # x_grout = Vec3(self.grout_width, 0, 0)
-        # y_grout = Vec3(0, self.grout_width, 0)
+        x_grout = Vec3(self.grout_width, 0, 0)
+        y_grout = Vec3(0, self.grout_width, 0)
         if matched_dir == T_Evt.EAST:
             y_min = min(entry_pt.y, exit_pt.y) - self.margin_wd
             entry_pt.y = exit_pt.y = y_min
+            # intrusions are entered and exited in CLOCKWISE direction,
+            # so we have to reverse this for the occlusion polygon
+            return [exit_pt + x_grout,
+                    intrusion_pts[2] + x_grout + y_grout,
+                    intrusion_pts[1] - x_grout + y_grout,
+                    entry_pt - x_grout]
         elif matched_dir == T_Evt.NORTH:
             x_max = max(entry_pt.x, exit_pt.x) + self.margin_wd
             entry_pt.x = exit_pt.x = x_max
+            # reverse intrusion point order for polygon
+            return [exit_pt + y_grout,
+                    intrusion_pts[2] - x_grout + y_grout,
+                    intrusion_pts[1] - x_grout - y_grout,
+                    entry_pt - y_grout]
         elif matched_dir == T_Evt.WEST:
             y_max = max(entry_pt.y, exit_pt.y) + self.margin_wd
             entry_pt.y = exit_pt.y = y_max
+            # reverse intrusion point order for polygon
+            return [exit_pt - x_grout,
+                    intrusion_pts[2] - x_grout - y_grout,
+                    intrusion_pts[1] + x_grout - y_grout,
+                    entry_pt + x_grout]
         elif matched_dir == T_Evt.SOUTH:
             x_min = min(entry_pt.x, exit_pt.x) - self.margin_wd
             entry_pt.x = exit_pt.x = x_min
-        # intrusions are entered and exited in CLOCKWISE direction,
-        # so we have to reverse this for the occlusion polygon
-        return [exit_pt, intrusion_pts[2], intrusion_pts[1], entry_pt]
+            # reverse intrusion point order for polygon
+            return [exit_pt - y_grout,
+                    intrusion_pts[2] + x_grout - y_grout,
+                    intrusion_pts[1] + x_grout + y_grout,
+                    entry_pt + y_grout]
 
     def detect_intrusion(self):
         detected_occluder_nps = []
