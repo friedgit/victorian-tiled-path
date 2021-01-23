@@ -14,8 +14,8 @@ class Border_Occluder:
         self.border_tile_trace = []
         self.unoccluded_ixs = []
         self.margin_wd = 4.0
-        # self.z_off = -0.05
-        self.z_off = 2
+        self.z_off = -0.01
+        # self.z_off = 2
         self.grout_width = grout_width
 
     def get_tile_trace(self):

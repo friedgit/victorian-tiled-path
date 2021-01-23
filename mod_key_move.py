@@ -40,7 +40,7 @@ class MyApp(ShowBase):
         self.accept("escape", sys.exit)
 
         self.mm_per_unit = 75
-        self.grout_wd = 0.05
+        # self.grout_wd = 0.05
         self.grout_wd = 2.5 / self.mm_per_unit
 
         self.flung_tile, self.trajectory, self.use_short_cushion, self.event = (None, None, None, None)
@@ -117,8 +117,8 @@ class MyApp(ShowBase):
         for tile in self.border_tile_nps:
             tile.reparentTo(self.border_tiles_np)
 
-        # height = 0.01
-        height = 1
+        height = 0.1
+        # height = 1
         self.border_tiles_np.setZ(self.border_tiles_np.getZ() + height)
 
     def lay_inner_tiles(self, task):
@@ -203,7 +203,8 @@ class MyApp(ShowBase):
 
     def move(self, task):
         dt = globalClock.getDt()
-        delta = 2
+        delta = 0.5
+        # delta = 1.2
         if self.keyMap["west"]:
             self.inner_tiles_np.setX(self.inner_tiles_np.getX() - delta * dt)
         if self.keyMap["east"]:
