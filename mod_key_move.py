@@ -41,7 +41,8 @@ class MyApp(ShowBase):
 
         self.mm_per_unit = 75
         # self.grout_wd = 0.05
-        self.grout_wd = 2.5 / self.mm_per_unit
+        # self.grout_wd = 2.5 / self.mm_per_unit
+        self.grout_wd = 2 / self.mm_per_unit
 
         self.flung_tile, self.trajectory, self.use_short_cushion, self.event = (None, None, None, None)
 
@@ -79,8 +80,8 @@ class MyApp(ShowBase):
 
         # Try to reopen the file
         try:
-            input = open('zoo.pkl', 'rb')
-            # input = open('zoo-not.pkl', 'rb')
+            # input = open('zoo.pkl', 'rb')
+            input = open('zoo-not.pkl', 'rb')
 
             # Loading from pickle, so do not stash
             self.stash = False

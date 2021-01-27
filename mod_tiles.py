@@ -227,7 +227,7 @@ class TileDispenser:
         self.sched_tile(Tiles.edge_square, phase=0, xyz=(0.7,y,z), traj=self.up_lf, event=T_Evt.SOUTH)
 
     def left_edge2(self, y_top):
-        x = 2
+        x = 2.2
         z = 1
         for i in range(3):
             y = y_top - i * 1.5
